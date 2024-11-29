@@ -4,19 +4,19 @@ using UnityEngine;
 public class Sample_ButtonAttribute : MonoBehaviour
 {
     [Button]
-    public void Sample_Button()
+    public void Button()
     {
         Debug.Log("() => Sample_Button()");
     }
 
     [Button("CustomButtonName")]
-    public void Sample_ButtonName()
+    public void ButtonName()
     {
         Debug.Log("() => Sample_ButtonName()");
     }
 
     [Button("ButtonParm_String", "HelloWorld")]
-    public void Sample_Button_stringParm(string parmA)
+    public void Button_stringParm(string parmA)
     {
         Debug.Log($"() => {parmA}");
     }
