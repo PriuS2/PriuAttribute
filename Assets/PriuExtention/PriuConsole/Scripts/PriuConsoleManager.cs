@@ -51,7 +51,7 @@ namespace PriuConsole
         }
 
         // 모든 명령어 등록
-        private void RegisterAllCommands()
+        private static void RegisterAllCommands()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies)
@@ -67,7 +67,6 @@ namespace PriuConsole
                             var commandName = attribute.CommandName;
                             Action commandAction = null;
 
-                            // 인스턴스 메서드인지 확인
                             if (method.IsStatic)
                             {
                                 commandAction = () => method.Invoke(null, null);
@@ -79,18 +78,21 @@ namespace PriuConsole
                                 {
                                     commandAction = () => method.Invoke(instance, null);
                                 }
-                            }
-
-                            if (commandAction != null)
-                            {
-                                if (!commandDictionary.ContainsKey(commandName))
-                                {
-                                    commandDictionary.Add(commandName, commandAction);
-                                }
                                 else
                                 {
-                                    Debug.LogWarning($"Command {commandName} is already registered.");
+                                    Debug.LogWarning($"Instance of {type.Name} not found for command {commandName}");
+                                    continue;
                                 }
+                            }
+
+                            if (!commandDictionary.ContainsKey(commandName))
+                            {
+                                commandDictionary.Add(commandName, commandAction);
+                                Debug.Log($"Command '{commandName}' registered successfully.");
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"Command '{commandName}' is already registered.");
                             }
                         }
                     }
@@ -107,13 +109,29 @@ namespace PriuConsole
 
             if (commandDictionary.TryGetValue(command, out var action))
             {
-                action.Invoke();
+                action?.Invoke();
                 Debug.Log($"Command '{command}' executed.");
             }
             else
             {
                 Debug.LogWarning($"Command '{command}' not found.");
+                RegisterAllCommands();
+                if (commandDictionary.TryGetValue(command, out var action2))
+                {
+                    action2?.Invoke();
+                    Debug.Log($"Command '{command}' executed.");
+                }
             }
+        }
+
+        public static void DebugCommands()
+        {
+            foreach (var key in commandDictionary.Keys)
+            {
+                Debug.Log($"PriuConsoleCommand Key : {key}");
+            }
+
+            
         }
     }
 }
